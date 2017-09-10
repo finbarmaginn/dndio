@@ -1,17 +1,13 @@
-var express = require('express');
-var app = express();
-var io = require("socket.io")(app);
+var app = require('express')();
+var server = require('http').Server(app);
+var io = require("socket.io")(server);
 
 app.set('port', (process.env.PORT || 5000));
 
 app.use(express.static(__dirname + '/public'));
 
-// views is directory for all template files
-// app.set('views', __dirname + '/views');
-// app.set('view engine', 'ejs');
-
 app.get('/', function(request, response) {
-  response.render('index.html');
+  response.sendfile('index.html');
 });
 
 app.listen(app.get('port'), function() {
