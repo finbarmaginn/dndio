@@ -32,11 +32,11 @@ io.on('connection', function(socket) {
   });
 
   socket.on('chat message', function(msg) {
-    // var data = {
-    //   'usr': socket.id,
-    //   'msg': msg
-    // }
-    io.emit('chat message', msg)
+    var data = {
+      'usr': socket.id,
+      'msg': msg
+    }
+    io.emit('chat message', data)
   })
 });
 
