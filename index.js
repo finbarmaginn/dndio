@@ -8,9 +8,7 @@ var app = require('express')(),
     "danny": "medannica",
     "emma": "emskibe"
   },
-  currentUser = "",
   isValidPassword = function(data) {
-    currentUser = data.username;
     return users[data.username] === data.password
   };
 
@@ -40,7 +38,8 @@ io.on('connection', function(socket) {
     console.log(data);
     if (isValidPassword(data)) {
       socket.emit("signinResponse", {
-        success: true
+        success: true,
+        username: data.username
       })
     } else socket.emit("signinResponse", {
       success: false
@@ -55,7 +54,6 @@ io.on('connection', function(socket) {
 
   socket.on('chat message', function(msg) {
     var data = {
-      'usr': currentUser,
       'msg': msg
     }
     io.emit('chat message', data)
