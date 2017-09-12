@@ -1,6 +1,7 @@
 var app = require('express')(),
   http = require('http').Server(app),
   io = require('socket.io')(http),
+  mongojs = require("mongojs"),
   port = (process.env.PORT || 5000),
   users = [];
 
@@ -25,6 +26,17 @@ io.on('connection', function(socket) {
   users.push(socket.id);
   io.emit('user connected', users);
   console.log('user ' + socket.id + ' connected');
+
+  socket.on("signin", function(data) {
+    console.log(data);
+    if (data.username === "finbarmaginn" && data.password === "finbarmaginn") {
+      socket.emit("signinResponse", {
+        success: true
+      })
+    } else socket.emit("signinResponse", {
+      success: false
+    })
+  })
 
   socket.on('disconnect', function() {
     users.remove(socket.id)
