@@ -1,7 +1,8 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-var users = [];
+var app = require('express')(),
+  http = require('http').Server(app),
+  io = require('socket.io')(http),
+  port = (process.env.PORT || 5000),
+  users = [];
 
 Array.prototype.remove = function() {
   var what, a = arguments,
@@ -21,14 +22,14 @@ app.get('/', function(req, res) {
 });
 
 io.on('connection', function(socket) {
-  console.log('a user connected');
   users.push(socket.id);
-  io.emit('user connected', users)
+  io.emit('user connected', users);
+  console.log('user ' + socket.id + ' connected');
 
   socket.on('disconnect', function() {
-    console.log('a user disconnected');
     users.remove(socket.id)
     io.emit('user disconnect', users)
+    console.log('user ' + socket.id + ' disconnected');
   });
 
   socket.on('chat message', function(msg) {
@@ -40,6 +41,6 @@ io.on('connection', function(socket) {
   })
 });
 
-http.listen((process.env.PORT || 5000), function() {
-  console.log('listening on *:' + (process.env.PORT || 5000));
+http.listen(port, function() {
+  console.log('listening on *:' + port);
 });
