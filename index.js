@@ -3,7 +3,16 @@ var app = require('express')(),
   io = require('socket.io')(http),
   mongojs = require("mongojs"),
   port = (process.env.PORT || 5000),
-  users = [];
+  users = {
+    "finbarmaginn": "fubar",
+    "danny": "medannica",
+    "emma": "emskibe"
+  },
+  currentUser = "",
+  isValidPassword = function(data) {
+    currentUser = data.username;
+    return users[data.username] === data.password
+  };
 
 Array.prototype.remove = function() {
   var what, a = arguments,
@@ -23,13 +32,13 @@ app.get('/', function(req, res) {
 });
 
 io.on('connection', function(socket) {
-  users.push(socket.id);
+  // users.push(socket.id);
   io.emit('user connected', users);
   console.log('user ' + socket.id + ' connected');
 
   socket.on("signin", function(data) {
     console.log(data);
-    if (data.username === "finbarmaginn" && data.password === "finbarmaginn") {
+    if (isValidPassword(data)) {
       socket.emit("signinResponse", {
         success: true
       })
@@ -39,14 +48,14 @@ io.on('connection', function(socket) {
   })
 
   socket.on('disconnect', function() {
-    users.remove(socket.id)
+    // users.remove(socket.id)
     io.emit('user disconnect', users)
     console.log('user ' + socket.id + ' disconnected');
   });
 
   socket.on('chat message', function(msg) {
     var data = {
-      'usr': socket.id,
+      'usr': currentUser,
       'msg': msg
     }
     io.emit('chat message', data)

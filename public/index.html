@@ -174,7 +174,7 @@
       });
 
       socket.on('user connected', function(arr) {
-        $("#usersConnected").html(arr.length + " User(s) Connected:<br />" + arr.join("<br />"))
+        // $("#usersConnected").html(arr.length + " User(s) Connected:<br />" + arr.join("<br />"))
       })
 
       socket.on('user disconnect', function(arr) {
