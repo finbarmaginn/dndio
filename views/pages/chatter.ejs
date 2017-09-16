@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <% include ../partials/head %>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body class="container">
+
+  <header>
+    <% include ../partials/header %>
+  </header>
+
+  <section>
+    <article id="chatbox">
+      <ul id="messages"></ul>
+      <form id="chatter" action="">
+        <input id="m" autocomplete="off" /><button>Send</button>
+      </form>
+    </article>
+  </section>
+
+  <footer>
+    <% include ../partials/footer %>
+  </footer>
+  <script>
+    var socket = io(),
+      chatterDiv = document.getElementById("chatbox");
+
+    $('form#chatter').submit(function() {
+      socket.emit('chat message', $('#m').val());
+      $('#m').val('');
+      return false;
+    });
+
+    socket.on('chat message', function(data) {
+      // TODO: implement username stuff
+      $('#messages').append($('<li>').html("<b>" + data.usr + "</b>:<br />" + data.msg));
+      var objDiv = document.getElementById("messages");
+      objDiv.scrollTop = objDiv.scrollHeight;
+      // document.querySelector("#chatbox ul").scrollTo(0, document.querySelector("#chatbox ul").scrollHeight);
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <% include ../partials/head %>
+</head>
+
+<body class="container">
+
+  <header>
+    <% include ../partials/header %>
+  </header>
+
+  <section>
+    <article id="signinDiv">
+      <form id="signinForm" action="">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" />
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" />
+        <!-- <input type="submit" id="signinButton" value="Sign In" /> -->
+        <button id="signinButton">Sign In</button>
+        <!-- <input type="submit" id="signupButton" value="Sign Up" /> -->
+        <!-- <button id="signupButton" onclick="submitForm('signupSubmit')">Sign Up</button> -->
+      </form>
+    </article>
+  </section>
+
+  <footer>
+    <% include ../partials/footer %>
+  </footer>
+  <script>
+    var signinDiv = document.getElementById("signinDiv");
+
+    $("#signinButton").click(function() {
+      var usr = $("#username").val(),
+        pass = $("#password").val();
+
+      // $.post(document.location.origin + "/login", {
+      //   username: usr,
+      //   password: pass
+      // })
+
+      $.ajax({
+        url: document.location.origin + "/login",
+        type: 'POST',
+        data: JSON.stringify({
+          username: usr,
+          password: pass
+        }),
+        crossDomain: true,
+        contentType: 'application/json',
+        success: function(data) {
+          // console.log(data)
+          console.log("Hello " + data.username);
+          document.location.href = data.path;
+        }
+      });
+    })
+
+    $("#signinForm").submit(function(e) {
+      e.preventDefault();
+      return false;
+    });
+  </script>
+</body>
+
+</html>

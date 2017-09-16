@@ -1,63 +1,70 @@
-var app = require('express')(),
+require('./db');
+
+// mongoose.connect('mongodb://finbarmaginn:unsafepassword@ds137464.mlab.com:37464/dndio', {
+//   // keepAlive: true,
+//   // reconnectTries: Number.MAX_VALUE,
+//   useMongoClient: true
+// });
+
+var mongoose = require('mongoose');
+var Player = mongoose.model('User');
+var functions = {};
+var express = require('express'),
+  app = express(),
+  bodyParser = require('body-parser'),
   http = require('http').Server(app),
   io = require('socket.io')(http),
-  mongojs = require("mongojs"),
   port = (process.env.PORT || 5000),
-  users = {
-    "finbarmaginn": "fubar",
-    "danny": "medannica",
-    "emma": "emskibe"
-  },
-  isValidPassword = function(data) {
-    return users[data.username] === data.password
-  };
+  people = {},
+  sess;
 
-Array.prototype.remove = function() {
-  var what, a = arguments,
-    L = a.length,
-    ax;
-  while (L && this.length) {
-    what = a[--L];
-    while ((ax = this.indexOf(what)) !== -1) {
-      this.splice(ax, 1);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+
+app.set("view engine", "ejs")
+
+functions.findPlayer = function(req, res, next) {
+  var player;
+  Player.find({
+    username: req.body.username,
+    password: req.body.password
+  }, {
+    username: 1
+  }, function(error, players) {
+    if (players.length) {
+      player = players[0].username;
+      res.send({
+        path: "/chatter",
+        username: player
+      });
     }
-  }
-  return this;
-};
+  })
+}
 
 app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/public/index.html');
+  res.render('pages/index');
+});
+
+app.post('/login', functions.findPlayer)
+
+app.get('/chatter', function(req, res) {
+  res.render('pages/chatter')
 });
 
 io.on('connection', function(socket) {
-  // users.push(socket.id);
-  io.emit('user connected', users);
   console.log('user ' + socket.id + ' connected');
-
-  socket.on("signin", function(data) {
-    console.log(data);
-    if (isValidPassword(data)) {
-      socket.emit("signinResponse", {
-        success: true,
-        username: data.username
-      })
-    } else socket.emit("signinResponse", {
-      success: false
-    })
-  })
-
   socket.on('disconnect', function() {
-    // users.remove(socket.id)
-    io.emit('user disconnect', users)
     console.log('user ' + socket.id + ' disconnected');
   });
-
   socket.on('chat message', function(msg) {
     var data = {
-      'msg': msg
+      msg: msg,
+      usr: socket.id
     }
-    io.emit('chat message', data)
-  })
+    io.emit('chat message', data);
+  });
 });
 
 http.listen(port, function() {
